@@ -5,93 +5,111 @@ import sys
 import csv
 import requests
 
+# Thanks to http://goo.gl/wCyUQ
 QUOTE_PROPS = {
-			'AfterHoursChangeRealtime': 'c8',
-			'AnnualizedGain': 'g3',
-			'Ask': 'a0',
-			'AskRealtime': 'b2',
-			'AskSize': 'a5',
-			'AverageDailyVolume': 'a2',
-			'Bid': 'b0',
-			'BidRealtime': 'b3',
-			'BidSize': 'b6',
-			'BookValuePerShare': 'b4',
-			'Change': 'c1',
-			'ChangeChangeInPercent': 'c0',
-			'ChangeFromFiftyDayMovingAverage': 'm7',
-			'ChangeFromTwoHundredDayMovingAverage': 'm5',
-			'ChangeFromYearHigh': 'k4',
-			'ChangeFromYearLow': 'j5',
-			'ChangeInPercent': 'p2',
-			'ChangeInPercentRealtime': 'k2',
-			'ChangeRealtime': 'c6',
-			'Commission': 'c3',
-			'Currency': 'c4',
-			'DaysHigh': 'h0',
-			'DaysLow': 'g0',
-			'DaysRange': 'm0',
-			'DaysRangeRealtime': 'm2',
-			'DaysValueChange': 'w1',
-			'DaysValueChangeRealtime': 'w4',
-			'DividendPayDate': 'r1',
-			'TrailingAnnualDividendYield': 'd0',
-			'TrailingAnnualDividendYieldInPercent': 'y0',
-			'DilutedEPS': 'e0',
-			'EBITDA': 'j4',
-			'EPSEstimateCurrentYear': 'e7',
-			'EPSEstimateNextQuarter': 'e9',
-			'EPSEstimateNextYear': 'e8',
-			'ExDividendDate': 'q0',
-			'FiftyDayMovingAverage': 'm3',
-			'SharesFloat': 'f6',
-			'HighLimit': 'l2',
-			'HoldingsGain': 'g4',
-			'HoldingsGainPercent': 'g1',
-			'HoldingsGainPercentRealtime': 'g5',
-			'HoldingsGainRealtime': 'g6',
-			'HoldingsValue': 'v1',
-			'HoldingsValueRealtime': 'v7',
-			'LastTradeDate': 'd1',
-			'LastTradePriceOnly': 'l1',
-			'LastTradeRealtimeWithTime': 'k1',
-			'LastTradeSize': 'k3',
-			'LastTradeTime': 't1',
-			'LastTradeWithTime': 'l0',
-			'LowLimit': 'l3',
-			'MarketCapitalization': 'j1',
-			'MarketCapRealtime': 'j3',
-			'MoreInfo': 'i0',
-			'Name': 'n0',
-			'Notes': 'n4',
-			'OneyrTargetPrice': 't8',
-			'Open': 'o0',
-			'OrderBookRealtime': 'i5',
-			'PEGRatio': 'r5',
-			'PERatio': 'r0',
-			'PERatioRealtime': 'r2',
-			'PercentChangeFromFiftyDayMovingAverage': 'm8',
-			'PercentChangeFromTwoHundredDayMovingAverage': 'm6',
-			'ChangeInPercentFromYearHigh': 'k5',
-			'PercentChangeFromYearLow': 'j6',
-			'PreviousClose': 'p0',
-			'PriceBook': 'p6',
-			'PriceEPSEstimateCurrentYear': 'r6',
-			'PriceEPSEstimateNextYear': 'r7',
-			'PricePaid': 'p1',
-			'PriceSales': 'p5',
-			'Revenue': 's6',
-			'SharesOwned': 's1',
-			'SharesOutstanding': 'j2',
-			'ShortRatio': 's7',
-			'StockExchange': 'x0',
-			'Symbol': 's0',
-			'TickerTrend': 't7',
-			'TradeDate': 'd2',
-			'TwoHundredDayMovingAverage': 'm4',
-			'Volume': 'v0',
-			'YearHigh': 'k0',
-			'YearLow': 'j0',
-			'YearRange': 'w0'
+			# Pricing
+			'ask': 'a',
+			'bid': 'b',
+			'ask_realtime': 'b2',
+			'bid_realtime': 'b3',
+			'previous_close': 'p',
+			'open': 'o',
+			'change': 'c1',
+			'change_and_percent_change': 'c',
+			'change_realtime': 'c6',
+			'change_percent_realtime': 'k2',
+			'change_in_percent': 'p2',
+			'after_hours_change_realtime': 'c8',
+			'commission': 'c3',
+			'days_low': 'g',
+			'days_high': 'h',
+			'last_trade_with_time_realtime': 'k1',
+			'last_trade_with_time': 'l',
+			'last_trade_price_only': 'l1',
+			'one_year_target_price': 't8',
+			'days_value_change': 'w1',
+			'days_value_change_realtime': 'w4',
+			'price_paid': 'p1',
+			'days_range': 'm',
+			'days_range_realtime': 'm2',
+
+			# 52 Week Pricing
+			'52_week_high': 'k',
+			'52_week_low': 'j',
+			'change_from_52_week_low': 'j5',
+			'change_from_52_week_high': 'k4',
+			'percent_change_from_52_week_low': 'j6',
+			'percent_Change_from_52_week_high': 'k5',
+			'52_week_range': 'w',
+
+			# Volume
+			'volume': 'v',
+			'ask_size': 'a5',
+			'bid_size': 'b6',
+			'last_trade_size': 'k3',
+			'average_daily_volume': 'a2',
+
+			# Ratios
+			'eps': 'e',
+			'eps_estimate_current_year': 'e7',
+			'eps_estimate_next_year': 'e8',
+			'eps_estimate_next_quarter': 'e9',
+			'book_value': 'b4',
+			'ebitda': 'j4',
+			'price_to_sales': 'p5',
+			'price_to_book': 'p6',
+			'pe_ratio': 'r',
+			'pe_ratio_realtime': 'r2',
+			'peg_ratio': 'r5',
+			'price_to_eps_estimate_current_year': 'r6',
+			'price_to_eps_estimate_next_year': 'r7',
+			'short_ratio': 's7',
+
+			# Dividends
+			'dividend_yield': 'y',
+			'dividend_per_share': 'd',
+			'dividend_pay_date': 'r1',
+			'ex_dividend_date': 'q',
+
+			# Date
+			'last_trade_date': 'd1',
+			'trade_date': 'd2',
+			'last_trade_time': 't1',
+
+			# Averages
+			'change_from_200_day_moving_average': 'm5',
+			'percent_change_from_200_day_moving_average': 'm6',
+			'change_from_50_day_moving_average': 'm7',
+			'percent_change_from_50_day_moving_average': 'm8',
+			'50_day_moving_average': 'm3',
+			'200_day_moving_average': 'm4',
+
+			# Misc
+			'holdings_gain_percent': 'g1',
+			'annualized_gain': 'g3',
+			'holdings_gain': 'g4',
+			'holdings_gain_percent_realtime': 'g5',
+			'holdings_gain_realtime': 'g6',
+
+			# Symbol Info
+			'more_info': 'v',
+			'market_cap': 'j1',
+			'market_cap_realtime': 'j3',
+			'float_shares': 'f6',
+			'name': 'n',
+			'notes': 'n4',
+			'symbol': 's',
+			'shares_owned': 's1',
+			'stock_exchange': 'x',
+
+			# Misc
+			'ticker_trend': 't7',
+			'trade_links': 't6',
+			'order_book_realtime': 'i5',
+			'high_limit': 'l2',
+			'low_limit': 'l3',
+			'holdings_value': 'v1',
+			'holdings_value_realtime': 'v7'
 		}
 
 
@@ -103,7 +121,7 @@ def quotes( symbols, properties=[] ) :
 		symbols (list): list of ticker symbols
 		properties (list): list of properties to collect
 	Returns:
-		Array of quotes
+		List of quotes
 	'''
 	api_url = 'http://download.finance.yahoo.com/d/quotes.csv'
 
@@ -120,24 +138,19 @@ def quotes( symbols, properties=[] ) :
 			}
 
 	r = requests.get( api_url, params=params )
+	print r.url
 	data = [datum.replace('"','').strip() for datum in r.text.split(',')]
 	results = dict(zip(properties, data))
 
 	print results
 	return results
 
-def xchange( *currencies ):
-	'''
-
-	'''
-
-
 def main():
 	if len(sys.argv) < 2:
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
-	results = quotes( args, ['Name', 'Symbol', 'Change'] )
+	results = quotes( args, ['name', 'symbol', 'change'] )
 	results = quotes( args )
 
 	if not results:
