@@ -11,14 +11,14 @@ BASE_PARAMS = {
 }
 
 
-def quotes( symbols ):
+def quotes( *symbols ):
 	'''
 	Gets quotes
 
 	Args:
-		quotes (string): comma-separated list of ticker symbols
+		symbols (list): list of ticker symbols
 	Returns:
-		Dictionary of quotes
+		Array of quotes
 	'''
 	query = BASE_PARAMS.copy()
 	s = ', '.join('"%s"' % i for i in symbols)
@@ -28,7 +28,7 @@ def quotes( symbols ):
 	quotes = r.json()['query']['results']['quote']
 	return quotes
 
-def xchange( currencies ):
+def xchange( *currencies ):
 	'''
 
 	'''
@@ -40,9 +40,9 @@ def prettify( data ):
 def main():
 	if len(sys.argv) < 2:
 		sys.exit('You forgot to pass an argument')
-	arg = sys.argv[1]
+	args = sys.argv[1:]
 
-	results = quotes( arg )
+	results = quotes( args )
 
 	if not results:
 		sys.exit(1)
