@@ -2,16 +2,10 @@
 # With many thanks to http://goo.gl/gSEmw
 
 import sys
-import json
+import csv
 import requests
 
-API_URL = 'http://query.yahooapis.com/v1/public/yql'
-BASE_PARAMS = {
-		'format': 'json',
-		'env': 'store://datatables.org/alltableswithkeys'
-}
-
-QUOTE_PROPERTIES = {
+QUOTE_PROPS = {
 			'AfterHoursChangeRealtime': 'c8',
 			'AnnualizedGain': 'g3',
 			'Ask': 'a0',
@@ -101,37 +95,41 @@ QUOTE_PROPERTIES = {
 		}
 
 
-def quotes( *symbols ):
+def quotes( symbols, properties=[] ) :
 	'''
 	Gets quotes
 
 	Args:
 		symbols (list): list of ticker symbols
+		properties (list): list of properties to collect
 	Returns:
 		Array of quotes
 	'''
+	api_url = 'http://download.finance.yahoo.com/d/quotes.csv'
 
+	if not properties: properties = QUOTE_PROPS.keys()
+	print properties
+	f = [QUOTE_PROPS[p]
+			for p in properties
+			if p in QUOTE_PROPS]
 
 	params = {
-				# Get all data
-				'f': 'p0p1p2snhcgabmkjwrdyeqflvtiox'
+				'f': ''.join(f),
+				's': ','.join(symbols),
+				'e': '.csv'
 			}
 
-	query = BASE_PARAMS.copy()
-	s = ', '.join('"%s"' % i for i in symbols)
-	query['q'] = 'select * from yahoo.finance.quotes where symbol in (%s)' % s
+	r = requests.get( api_url, params=params )
+	data = [datum.replace('"','').strip() for datum in r.text.split(',')]
+	results = dict(zip(properties, data))
 
-	r = requests.get( API_URL, params=query )
-	quotes = r.json()['query']['results']['quote']
-	return quotes
+	print results
+	return results
 
 def xchange( *currencies ):
 	'''
 
 	'''
-
-def prettify( data ):
-	print json.dumps(data, sort_keys=True, indent=4)
 
 
 def main():
@@ -139,24 +137,13 @@ def main():
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
+	results = quotes( args, ['Name', 'Symbol', 'Change'] )
 	results = quotes( args )
 
 	if not results:
 		sys.exit(1)
 
-	prettify(results)
-
 	return 0
-
-def ribosome(targets, results):
-	target = targets.pop(0)
-	if target.endswith(FILE_FORMATS):
-		if not results.has_key('books'): results['books'] = []
-		results['books'].append(target)
-	else:
-		if not results.has_key(target): results[target] = {}
-		return ribosome(targets, results[target])
-	return results
 
 
 if __name__ == '__main__':
