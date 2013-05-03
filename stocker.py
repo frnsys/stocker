@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-# With many thanks to http://goo.gl/gSEmw
+
+'''
+	Stocker 0.0.1
+	By Francis Tseng
+	frnsys.com / @frnsys
+
+	A Python wrapper for the Yahoo Finance API
+	With many thanks to http://goo.gl/gSEmw
+'''
 
 import sys
 import os
@@ -20,7 +28,8 @@ def quotes( symbols, props=[] ):
 		symbols (list): list of ticker symbols
 		props (list): list of props to collect
 	Returns:
-		List of quotes
+		List of quote data
+		[{label:value}]
 	'''
 	api_url = 'http://download.finance.yahoo.com/d/quotes.csv'
 
@@ -37,10 +46,10 @@ def quotes( symbols, props=[] ):
 
 	r = requests.get( api_url, params=params )
 
-	results = []
+	results = {}
 	for row in r.text.split('\n'):
 		data = [datum.replace('"','').strip() for datum in row.split(',')]
-		results.append(dict.zip(props,data))
+		results.append(dict(zip(props,data)))
 	return results
 
 def history( symbols, from_date, to_date, interval ):
@@ -53,7 +62,8 @@ def history( symbols, from_date, to_date, interval ):
 		to_date (string): date in the format mm/dd/yyyy
 		interval (string): trading interval (d=daily, w=weekly, m=monthly, v=dividends)
 	Returns:
-		{symbol:{data_name:value}}
+		dict of symbols with their data
+		{symbol:{label:value}}
 	'''
 	api_url = 'http://ichart.yahoo.com/table.csv'
 	start = datetime.strptime(from_date, "%m/%d/%Y")
@@ -89,15 +99,14 @@ def sectors( sort_up=True ):
 	Args:
 		sort (bool): sort up or down
 	Returns:
-		{symbol:{data_name:value}}
+		list of dicts of sector data
 	'''
 
 	api_url = 'http://biz.yahoo.com/p/csv/s_coname'
 	sort = 'u' if sort_up else 'd'
 
-	r = requests.get( api_url + sort + '.csv' )
-	print r.url
-	print r.text
+	url = api_url + sort + '.csv'
+	return fetch( url )
 
 def industries( industries, sort_up=True ):
 	'''
@@ -106,7 +115,8 @@ def industries( industries, sort_up=True ):
 	Args:
 		sort (bool): sort up or down
 	Returns:
-		{industry:{data_name:value}}
+		dict of industries with their data
+		{industry:{label:value}}
 	'''
 	api_url = 'http://biz.yahoo.com/p/csv/'
 	sort = 'u' if sort_up else 'd'
@@ -122,6 +132,9 @@ def industries( industries, sort_up=True ):
 	return results
 	
 def fetch( url, params=[] ):
+	'''
+	Fetches CSV data and parses it
+	'''
 	r = requests.get( url, params=params )
 	csv = r.text.split("\n")
 	labels = csv.pop(0).split(",")
@@ -138,10 +151,10 @@ def main():
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
+	results = quotes( args )
 	#results = history( args, "3/15/2000", "1/31/2010", 'w' )
 	#results = sectors()
-	results = industries(['services'])
-	print results
+	#results = industries(['services'])
 
 	if not results:
 		sys.exit(1)
