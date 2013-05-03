@@ -113,22 +113,21 @@ QUOTE_PROPS = {
 			'holdings_value_realtime': 'v7'
 		}
 
-
-def quotes( symbols, properties=[] ):
+def quotes( symbols, props=[] ):
 	'''
 	Gets quotes
 
 	Args:
 		symbols (list): list of ticker symbols
-		properties (list): list of properties to collect
+		props (list): list of props to collect
 	Returns:
 		List of quotes
 	'''
 	api_url = 'http://download.finance.yahoo.com/d/quotes.csv'
 
-	if not properties: properties = QUOTE_PROPS.keys()
+	if not props: props = QUOTE_PROPS.keys()
 	f = [QUOTE_PROPS[p]
-			for p in properties
+			for p in props
 			if p in QUOTE_PROPS]
 
 	params = {
@@ -142,7 +141,7 @@ def quotes( symbols, properties=[] ):
 	results = []
 	for row in r.text.split('\n'):
 		data = [datum.replace('"','').strip() for datum in row.split(',')]
-		results.append(dict.zip(properties,data))
+		results.append(dict.zip(props,data))
 	return results
 
 def history( symbols, from_date, to_date, interval ):
@@ -176,6 +175,8 @@ def history( symbols, from_date, to_date, interval ):
 			}
 
 	results = {}
+	# You can only access one symbol at a time,
+	# so we must request each one individually.
 	for symbol in symbols:
 		_params = params.copy()
 		_params['s'] = symbol
@@ -191,6 +192,15 @@ def history( symbols, from_date, to_date, interval ):
 		results[symbol] = d
 
 	return results
+
+def sector( sort='u' ):
+	api_url = 'http://biz.yahoo.com/p/csv/s_coname'
+
+	if sort not in ['u','d']: sort = 'u'
+
+	r = requests.get( api_url + sort + '.csv' )
+	print r.url
+	print r.text
 	
 
 
@@ -199,9 +209,8 @@ def main():
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
-	results = history( args, "3/15/2000", "1/31/2010", 'w' )
-
-	print results['GOOG']
+	#results = history( args, "3/15/2000", "1/31/2010", 'w' )
+	results = sector('name')
 
 	if not results:
 		sys.exit(1)
