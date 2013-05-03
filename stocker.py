@@ -4,6 +4,7 @@
 import sys
 import csv
 import requests
+from datetime import datetime
 
 # Thanks to http://goo.gl/wCyUQ
 QUOTE_PROPS = {
@@ -69,7 +70,7 @@ QUOTE_PROPS = {
 			'dividend_yield': 'y',
 			'dividend_per_share': 'd',
 			'dividend_pay_date': 'r1',
-			'ex_dividend_date': 'q',
+			'ex_dividto_date': 'q',
 
 			# Date
 			'last_trade_date': 'd1',
@@ -113,7 +114,7 @@ QUOTE_PROPS = {
 		}
 
 
-def quotes( symbols, properties=[] ) :
+def quotes( symbols, properties=[] ):
 	'''
 	Gets quotes
 
@@ -126,7 +127,6 @@ def quotes( symbols, properties=[] ) :
 	api_url = 'http://download.finance.yahoo.com/d/quotes.csv'
 
 	if not properties: properties = QUOTE_PROPS.keys()
-	print properties
 	f = [QUOTE_PROPS[p]
 			for p in properties
 			if p in QUOTE_PROPS]
@@ -138,20 +138,56 @@ def quotes( symbols, properties=[] ) :
 			}
 
 	r = requests.get( api_url, params=params )
-	print r.url
-	data = [datum.replace('"','').strip() for datum in r.text.split(',')]
-	results = dict(zip(properties, data))
-
-	print results
+	csv = r.text.split('\n')
+	results = [dict(zip(properties,
+				[datum.replace('"','').strip() for datum in row.split(',')]))
+					for row in csv]
 	return results
+
+def history( symbols, from_date, to_date, interval ):
+	'''
+	Gets historical stock/index quote data
+
+	Args:
+		symbols (list): list of ticker symbols
+		from_date (string): date in the format mm/dd/yyyy
+		to_date (string): date in the format mm/dd/yyyy
+		interval (string): trading interval (d=daily, w=weekly, m=monthly, v=dividends)
+	'''
+	api_url = 'http://ichart.yahoo.com/table.csv'
+	start = datetime.strptime(from_date, "%m/%d/%Y")
+	end = datetime.strptime(to_date, "%m/%d/%Y")
+
+	if start > end: return
+	if interval not in ['d','w','m','v']: return
+
+	params = {
+				'ignore': '.csv',
+				'a': start.month - 1,
+				'b': start.day,
+				'c': start.year,
+				'd': end.month - 1,
+				'e': end.day,
+				'f': end.year,
+				'g': interval
+			}
+
+	for symbol in symbols:
+		_params = params.copy()
+		_params['s'] = symbol
+		r = requests.get( api_url, params=_params )
+		print r.text
+	
+
 
 def main():
 	if len(sys.argv) < 2:
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
-	results = quotes( args, ['name', 'symbol', 'change'] )
-	results = quotes( args )
+	results = history( args, "3/15/2000", "1/31/2010", 'w' )
+
+	print results
 
 	if not results:
 		sys.exit(1)
