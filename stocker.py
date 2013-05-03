@@ -19,6 +19,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 props = yaml.load(open(os.path.join(__location__, 'properties.yml')))
 QUOTE_PROPS = props['quotes']
 INDUSTRIES = props['industries']
+COMPANIES = props['companies']
 
 def quotes( symbols, props=[] ):
 	'''
@@ -110,9 +111,10 @@ def sectors( sort_up=True ):
 
 def industries( industries, sort_up=True ):
 	'''
-	Gets data for all sectors
+	Gets data for industries
 
 	Args:
+		industries (list): list of industry names
 		sort (bool): sort up or down
 	Returns:
 		dict of industries with their data
@@ -129,6 +131,27 @@ def industries( industries, sort_up=True ):
 
 		url = api_url + str(INDUSTRIES[industry]) + 'coname' + sort + '.csv'
 		results[industry] = fetch( url )
+	return results
+
+def companies( companies, sort_up=True ):
+	'''
+	Gets data for companies
+
+	Args:
+		companies (list): list of company names
+		sort (bool): sort up or down
+	Returns:
+	'''
+	api_url = 'http://biz.yahoo.com/p/csv/'
+	sort = 'u' if sort_up else 'd'
+
+	results = {}
+	for company in list(companies):
+		if company not in COMPANIES:
+			companies.remove(company)
+			continue
+		url = api_url + str(COMPANIES[company]) + 'coname' + sort + '.csv'
+		results[company] = fetch( url )
 	return results
 	
 def fetch( url, params=[] ):
@@ -151,10 +174,12 @@ def main():
 		sys.exit('You forgot to pass an argument')
 	args = sys.argv[1:]
 
-	results = quotes( args )
+	#results = quotes( args )
 	#results = history( args, "3/15/2000", "1/31/2010", 'w' )
 	#results = sectors()
 	#results = industries(['services'])
+	results = companies(['aluminum'])
+	print results
 
 	if not results:
 		sys.exit(1)
