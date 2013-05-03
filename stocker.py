@@ -53,7 +53,7 @@ def history( symbols, from_date, to_date, interval ):
 		to_date (string): date in the format mm/dd/yyyy
 		interval (string): trading interval (d=daily, w=weekly, m=monthly, v=dividends)
 	Returns:
-		Dict of symbol:data
+		{symbol:{data_name:value}}
 	'''
 	api_url = 'http://ichart.yahoo.com/table.csv'
 	start = datetime.strptime(from_date, "%m/%d/%Y")
@@ -79,38 +79,58 @@ def history( symbols, from_date, to_date, interval ):
 	for symbol in symbols:
 		_params = params.copy()
 		_params['s'] = symbol
-		r = requests.get( api_url, params=_params )
-
-		csv = r.text.split("\n")
-		labels = csv.pop(0).split(",")
-
-		d = []
-		for row in csv:
-			data = [datum.strip() for datum in row.split(",")]
-			d.append(dict(zip(labels,data)))
-		results[symbol] = d
-
+		results[symbol] = fetch( url )
 	return results
 
-def sectors( sort='u' ):
-	api_url = 'http://biz.yahoo.com/p/csv/s_coname'
+def sectors( sort_up=True ):
+	'''
+	Gets data for all sectors
 
-	if sort not in ['u','d']: sort = 'u'
+	Args:
+		sort (bool): sort up or down
+	Returns:
+		{symbol:{data_name:value}}
+	'''
+
+	api_url = 'http://biz.yahoo.com/p/csv/s_coname'
+	sort = 'u' if sort_up else 'd'
 
 	r = requests.get( api_url + sort + '.csv' )
 	print r.url
 	print r.text
 
-def industries( industry, sort='u' ):
+def industries( industries, sort_up=True ):
+	'''
+	Gets data for all sectors
+
+	Args:
+		sort (bool): sort up or down
+	Returns:
+		{industry:{data_name:value}}
+	'''
 	api_url = 'http://biz.yahoo.com/p/csv/'
+	sort = 'u' if sort_up else 'd'
 
-	if industry not in INDUSTRIES: return
-	if sort not in ['u','d']: sort = 'u'
+	results = {}
+	for industry in list(industries):
+		if industry not in INDUSTRIES:
+			industries.remove(industry)
+			continue
 
-	url = api_url + str(INDUSTRIES[industry]) + 'coname' + sort + '.csv'
-	r = requests.get( url )
-	print r.text
+		url = api_url + str(INDUSTRIES[industry]) + 'coname' + sort + '.csv'
+		results[industry] = fetch( url )
+	return results
 	
+def fetch( url, params=[] ):
+	r = requests.get( url, params=params )
+	csv = r.text.split("\n")
+	labels = csv.pop(0).split(",")
+
+	results = []
+	for row in csv:
+		data = [datum.strip() for datum in row.split(",")]
+		results.append(dict(zip(labels,data)))
+	return results
 
 
 def main():
@@ -120,7 +140,8 @@ def main():
 
 	#results = history( args, "3/15/2000", "1/31/2010", 'w' )
 	#results = sectors()
-	results = industries('services')
+	results = industries(['services'])
+	print results
 
 	if not results:
 		sys.exit(1)
