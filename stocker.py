@@ -138,10 +138,11 @@ def quotes( symbols, properties=[] ):
 			}
 
 	r = requests.get( api_url, params=params )
-	csv = r.text.split('\n')
-	results = [dict(zip(properties,
-				[datum.replace('"','').strip() for datum in row.split(',')]))
-					for row in csv]
+
+	results = []
+	for row in r.text.split('\n'):
+		data = [datum.replace('"','').strip() for datum in row.split(',')]
+		results.append(dict.zip(properties,data))
 	return results
 
 def history( symbols, from_date, to_date, interval ):
@@ -153,6 +154,8 @@ def history( symbols, from_date, to_date, interval ):
 		from_date (string): date in the format mm/dd/yyyy
 		to_date (string): date in the format mm/dd/yyyy
 		interval (string): trading interval (d=daily, w=weekly, m=monthly, v=dividends)
+	Returns:
+		Dict of symbol:data
 	'''
 	api_url = 'http://ichart.yahoo.com/table.csv'
 	start = datetime.strptime(from_date, "%m/%d/%Y")
@@ -172,11 +175,22 @@ def history( symbols, from_date, to_date, interval ):
 				'g': interval
 			}
 
+	results = {}
 	for symbol in symbols:
 		_params = params.copy()
 		_params['s'] = symbol
 		r = requests.get( api_url, params=_params )
-		print r.text
+
+		csv = r.text.split("\n")
+		labels = csv.pop(0).split(",")
+
+		d = []
+		for row in csv:
+			data = [datum.strip() for datum in row.split(",")]
+			d.append(dict(zip(labels,data)))
+		results[symbol] = d
+
+	return results
 	
 
 
@@ -187,7 +201,7 @@ def main():
 
 	results = history( args, "3/15/2000", "1/31/2010", 'w' )
 
-	print results
+	print results['GOOG']
 
 	if not results:
 		sys.exit(1)
