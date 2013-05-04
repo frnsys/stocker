@@ -13,6 +13,7 @@ import sys
 import os
 import requests
 import yaml
+import json
 from datetime import datetime
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -161,13 +162,16 @@ def _fetch( url, params=[] ):
 	'''
 	r = requests.get( url, params=params )
 	csv = r.text.split("\n")
-	labels = csv.pop(0).split(",")
+	labels = csv.pop(0).replace('"','').split(",")
 
 	results = []
 	for row in csv:
-		data = [datum.strip() for datum in row.split(",")]
+		data = [datum.replace('"','').strip() for datum in row.split(",")]
 		results.append(dict(zip(labels,data)))
 	return results
+
+def _prettify( data ):
+	print json.dumps(data, sort_keys=True, indent=4)
 
 
 def main():
@@ -180,7 +184,7 @@ def main():
 	#results = sectors()
 	#results = industries(['services'])
 	results = companies(['aluminum'])
-	print results
+	_prettify(results)
 
 	if not results:
 		sys.exit(1)
