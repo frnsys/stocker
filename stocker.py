@@ -13,7 +13,6 @@ import sys
 import os
 import requests
 import yaml
-import json
 from datetime import datetime
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -169,28 +168,3 @@ def _fetch( url, params=[] ):
 		data = [datum.replace('"','').strip() for datum in row.split(",")]
 		results.append(dict(zip(labels,data)))
 	return results
-
-def _prettify( data ):
-	print json.dumps(data, sort_keys=True, indent=4)
-
-
-def main():
-	if len(sys.argv) < 2:
-		sys.exit('You forgot to pass an argument')
-	args = sys.argv[1:]
-
-	#results = quotes( args )
-	#results = history( args, "3/15/2000", "1/31/2010", 'w' )
-	#results = sectors()
-	#results = industries(['services'])
-	results = companies(['aluminum'])
-	_prettify(results)
-
-	if not results:
-		sys.exit(1)
-
-	return 0
-
-
-if __name__ == '__main__':
-	sys.exit(main())
