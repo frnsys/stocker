@@ -1,4 +1,4 @@
-![Stocker](http://supermedes.com/assets/stocker.png)
+[[![Stocker]]](http://supermedes.com/assets/stocker.png)
 
 Stocker
 ======

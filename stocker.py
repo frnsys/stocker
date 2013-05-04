@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-	Stocker 0.0.1
+	Stocker 0.1.0
 	By Francis Tseng
 	frnsys.com / @frnsys
 
@@ -10,13 +10,11 @@
 '''
 
 import sys
-import os
 import requests
-import yaml
+import json
 from datetime import datetime
 
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-props = yaml.load(open(os.path.join(__location__, 'properties.yml')))
+props = json.loads( open('properties.json').read() )
 QUOTE_PROPS = props['quotes']
 INDUSTRIES = props['industries']
 COMPANIES = props['companies']
