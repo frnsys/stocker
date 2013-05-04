@@ -90,7 +90,7 @@ def history( symbols, from_date, to_date, interval ):
 	for symbol in symbols:
 		_params = params.copy()
 		_params['s'] = symbol
-		results[symbol] = fetch( url )
+		results[symbol] = _fetch( url )
 	return results
 
 def sectors( sort_up=True ):
@@ -107,7 +107,7 @@ def sectors( sort_up=True ):
 	sort = 'u' if sort_up else 'd'
 
 	url = api_url + sort + '.csv'
-	return fetch( url )
+	return _fetch( url )
 
 def industries( industries, sort_up=True ):
 	'''
@@ -130,7 +130,7 @@ def industries( industries, sort_up=True ):
 			continue
 
 		url = api_url + str(INDUSTRIES[industry]) + 'coname' + sort + '.csv'
-		results[industry] = fetch( url )
+		results[industry] = _fetch( url )
 	return results
 
 def companies( companies, sort_up=True ):
@@ -151,12 +151,13 @@ def companies( companies, sort_up=True ):
 			companies.remove(company)
 			continue
 		url = api_url + str(COMPANIES[company]) + 'coname' + sort + '.csv'
-		results[company] = fetch( url )
+		results[company] = _fetch( url )
 	return results
 	
-def fetch( url, params=[] ):
+
+def _fetch( url, params=[] ):
 	'''
-	Fetches CSV data and parses it
+	fetches CSV data and parses it
 	'''
 	r = requests.get( url, params=params )
 	csv = r.text.split("\n")
