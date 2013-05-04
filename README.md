@@ -1,3 +1,5 @@
+![Stocker](http://supermedes.com/assets/stocker.png)
+
 Stocker
 ======
 By Francis Tseng
