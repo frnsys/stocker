@@ -46,9 +46,9 @@ def quotes( symbols, props=[] ):
 	r = requests.get( api_url, params=params )
 
 	results = {}
-	for row in r.text.split('\n'):
+	for i, row in enumerate(r.text.strip().split('\n')):
 		data = [datum.replace('"','').strip() for datum in row.split(',')]
-		results.append(dict(zip(props,data)))
+		results[symbols[i]] = dict(zip(props,data))
 	return results
 
 def history( symbols, from_date, to_date, interval ):
