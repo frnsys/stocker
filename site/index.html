@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Stocker</title>
+        <meta name="description" content="A Python wrapper for the Yahoo Finance API.">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="style/style.css">
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <header>
+	       <img src="img/stocker.png" class="stocker">
+				 	<h1>Stocker</h1>
+
+           <h4>A Python wrapper for the Yahoo Finance API.</h4>
+           <a href="https://github.com/ftzeng/stocker">stocker on github</a>
+        </header>
+
+        <section>
+					<h5>Import</h5>
+					<code>
+						import stocker
+					</code>
+
+					<h5>Get quotes (all properties)</h5>
+					<code>
+						stocker.quotes( ['GOOG', 'AMZN'] )
+					</code>
+
+					<h5>Get quotes (specific properties)</h5>
+					<code>
+						stocker.quotes( ['GOOG'], ['pe_ratio', 'eps', 'bid'] )
+					</code>
+
+					<h5>Get stock history</h5>
+					<code>
+						stocker.history( ['AAPL', 'GOOG'], "02/10/2008", "04/24/2012", 'w' )
+					</code>
+					<h6>Get history for AAPL and GOOG from 02/10/2008 to 04/24/2012 on a weekly interval.</h6>
+					<h6>Interval can also be 'd' (daily), 'm' (monthly), and 'v' (dividends).</h6>
+
+					<h5>Get data for all sectors</h5>
+					<code>
+						stocker.sectors()
+					</code>
+
+					<h5>Get data for industries</h5>
+					<code>
+						stocker.industries( ['healthcare', 'technology'] )
+					</code>
+
+					<h5>Get company data by industry</h5>
+					<code>
+						stock.companies( ['gold', 'personal_computers'] )
+					</code>
+
+					<h5>View available quote properties, industries and companies</h5>
+					<code>
+						$ cat properties.json
+					</code>
+        </section>
+
+        <footer>
+            Stocker is by <a href="http://supermedes.com">Francis Tseng</a>. Stocker is released under the <a href="https://github.com/ftzeng/stocker/blob/master/LICENSE.txt">MIT License</a>.
+        </footer>
+
+        <script type="text/javascript" src="//use.typekit.net/lws3ygq.js"></script>
+        <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+    </body>
+</html>
